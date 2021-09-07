@@ -4,6 +4,8 @@ import { useHistory } from "react-router-dom";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FooterAll from "./FooterAll";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Adminpanel = () => {
   const [infos, setInfos] = useState([]);
@@ -36,6 +38,7 @@ const Adminpanel = () => {
     link: "",
     date: "",
     ratings: "",
+    logoid: "",
   });
   const onTextFieldChange = (e) => {
     setCard({ ...card, [e.target.name]: e.target.value });
@@ -43,25 +46,33 @@ const Adminpanel = () => {
 
   const onFormSubmit = async (e) => {
     e.preventDefault();
+    toast.success("Added Successfully", {
+      position: "top-center",
+      autoClose: 2000,
+    });
     try {
       await axios.post(process.env.React_App_API_LINK, card);
       setTimeout(() => {
         history.push("/");
-      }, 10);
+      }, 2000);
       setTimeout(() => {
         history.push("/adminpanel");
-      }, 12);
+      }, 2010);
     } catch (err) {
       console.log(err);
     }
   };
 
-  const handleDelete = async (id) => {
-    await axios.delete(process.env.React_App_API_LINK + "/" + id);
+  const handleDelete = async (_id) => {
+    await axios.delete(process.env.React_App_API_LINK + "/" + _id);
     let newinfo = infos.filter((item) => {
-      return item.id !== id;
+      return item._id !== _id;
     });
     setInfos(newinfo);
+    toast.error("deleted successfully", {
+      position: "top-center",
+      autoClose: 2000,
+    });
   };
 
   return (
@@ -152,15 +163,27 @@ const Adminpanel = () => {
                 required
               />
             </div>
-            <input
-              type="text"
-              placeholder="Ratings"
-              className="p-2 w-full border-4 rounded-lg"
-              name="ratings"
-              onChange={(e) => onTextFieldChange(e)}
-              autoComplete="off"
-              required
-            />
+
+            <div className="flex justify-between">
+              <input
+                type="text"
+                placeholder="Ratings"
+                className="mb-4 border-4 p-2 rounded-lg w-6/12"
+                name="ratings"
+                onChange={(e) => onTextFieldChange(e)}
+                autoComplete="off"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Logo ID"
+                className="mb-4 border-4 p-2 rounded-lg w-5/12"
+                name="logoid"
+                onChange={(e) => onTextFieldChange(e)}
+                autoComplete="off"
+                required
+              />
+            </div>
             <div className="flex flex-row-reverse">
               <button
                 onClick={(e) => onFormSubmit(e)}
@@ -177,16 +200,17 @@ const Adminpanel = () => {
           </h1>
           <div className="w-full h-72 overflow-y-scroll">
             {infos.map((currElem, i) => {
-              const { id, topic, main, link, date, ratings } = currElem;
+              const { _id, topic, main, link, date, ratings, logoid } =
+                currElem;
               return (
                 <>
                   <div
                     className="flex flex-col p-5 shadow-2xl my-10 w-full mx-auto"
-                    key={id}
+                    key={_id}
                   >
                     <h6 className="text-lg  text-green-900 font-medium">
                       Serial No :
-                      <span className="text-gray-900 ml-8">{id} </span>
+                      <span className="text-gray-900 ml-8">{_id} </span>
                     </h6>
                     <h6 className="text-lg  text-green-900 font-medium">
                       Topic :<span className="text-gray-900 ml-8">{topic}</span>
@@ -204,9 +228,13 @@ const Adminpanel = () => {
                       Ratings :
                       <span className="text-gray-900 ml-5">{ratings}</span>
                     </h6>
+                    <h6 className="text-lg  text-green-900 font-medium">
+                      Logoid :
+                      <span className="text-gray-900 ml-5">{logoid}</span>
+                    </h6>
                     <button
                       className="bg-red-500 text-white w-10 ml-auto p-1 "
-                      onClick={() => handleDelete(id)}
+                      onClick={() => handleDelete(_id)}
                     >
                       <DeleteIcon />
                     </button>
@@ -218,6 +246,7 @@ const Adminpanel = () => {
         </div>
         <FooterAll />
       </div>
+      <ToastContainer />
     </>
   );
 };
